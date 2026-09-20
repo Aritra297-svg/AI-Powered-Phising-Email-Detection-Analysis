@@ -110,8 +110,57 @@
     .toast { position: fixed; right: 25px; bottom: 25px; z-index: 8; max-width: 330px; display: none; padding: 13px 16px; border: 1px solid #f2c9c2; border-radius: 9px; color: #713c34; background: #fff6f3; box-shadow: var(--shadow); font-size: 12px; }
     .toast.show { display: block; animation: rise .25s ease both; }
     @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 800px) { .shell { padding: 20px 16px 45px; } nav { padding-bottom: 40px; } .nav-right .status { display: none; } .workspace { grid-template-columns: 1fr; } .results { min-height: 0; } }
-    @media (max-width: 480px) { h1 { font-size: 41px; } .input-panel, .results { padding: 18px; } .input-foot { align-items: flex-end; flex-direction: column; } .primary { width: 100%; justify-content: center; } .insights { grid-template-columns: 1fr; } .footer { gap: 10px; flex-direction: column; } }
+    @media (max-width: 800px) {
+      .shell { padding: 20px 16px 45px; }
+      nav { padding-bottom: 40px; }
+      .nav-right .status { display: none; }
+      .workspace { grid-template-columns: 1fr; }
+      .results { min-height: 0; }
+      .auth-screen { display: block; min-height: 100dvh; padding: 0; }
+      .auth-wrap { width: 100%; min-height: 100dvh; grid-template-columns: 1fr; border: 0; border-radius: 0; }
+      .auth-visual { min-height: 290px; padding: 28px 24px; }
+      .auth-copy { margin: 42px 0 12px; }
+      .auth-copy h1 { max-width: 500px; font-size: clamp(32px, 9vw, 46px); }
+      .auth-form-panel { padding: 34px 24px 42px; }
+    }
+    @media (max-width: 480px) {
+      .shell { padding: 16px 12px 32px; }
+      nav { align-items: flex-start; gap: 14px; padding-bottom: 30px; }
+      .brand { gap: 9px; font-size: 15px; line-height: 1.15; }
+      .brand-mark { width: 32px; height: 32px; border-radius: 9px; box-shadow: 4px 4px 0 #b9ddd6; }
+      .nav-right { gap: 8px; }
+      .settings { font-size: 10px; }
+      .logout { padding: 7px 8px; font-size: 10px; }
+      h1 { font-size: clamp(35px, 11vw, 44px); }
+      .intro { margin-bottom: 25px; }
+      .intro p { font-size: 13px; }
+      .panel { border-radius: 15px; }
+      .input-panel, .results { padding: 16px; }
+      textarea { min-height: 230px; padding: 14px; font-size: 12px; }
+      .input-foot { align-items: stretch; flex-direction: column; gap: 10px; }
+      .input-actions { width: 100%; gap: 4px 14px; }
+      .sample, .file-button { padding: 6px 0; font-size: 11px; }
+      .primary { width: 100%; justify-content: center; }
+      .verdict-row { gap: 10px; }
+      .verdict { font-size: 23px; }
+      .score-ring { width: 76px; height: 76px; }
+      .score-value { font-size: 17px; }
+      .rationale { margin: 19px 0; padding-top: 16px; }
+      .insights { grid-template-columns: 1fr; gap: 8px; margin-top: 18px; }
+      .insight { padding: 12px; }
+      .footer { gap: 8px; flex-direction: column; margin-top: 22px; }
+      .auth-visual { min-height: 250px; padding: 22px 20px; }
+      .auth-copy { margin: 28px 0 8px; }
+      .auth-copy p { font-size: 12px; }
+      .auth-signal { font-size: 9px; }
+      .auth-form-panel { padding: 28px 20px 36px; }
+      .auth-tabs { gap: 18px; margin-bottom: 24px; }
+      .modal { align-items: end; padding: 12px; }
+      .modal-box { padding: 20px; border-radius: 16px; }
+      .modal-actions { flex-direction: column-reverse; }
+      .modal-actions button { width: 100%; justify-content: center; }
+      .toast { right: 12px; bottom: 12px; left: 12px; max-width: none; }
+    }
   </style>
 </head>
 <body>
