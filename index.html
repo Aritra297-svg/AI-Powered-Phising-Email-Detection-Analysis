@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PhishGuard AI analyzes suspicious email with explainable threat intelligence." />
+  <title>Bytex Fraud Detect AI | Email Threat Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink: #14212b; --muted: #70808a; --paper: #f5f8f7; --line: #dce7e4; --teal: #087f75; --teal-dark: #075a56; --coral: #e9644f; --amber: #d7902f; --shadow: 0 24px 60px rgba(29, 69, 69, .10); }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper); font-family: Manrope, sans-serif; }
+    body::before { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .42; background-image: radial-gradient(#bdd8d3 1px, transparent 1px); background-size: 24px 24px; mask-image: linear-gradient(to bottom, #000, transparent 75%); }
+    button, textarea, input { font: inherit; }
+    button { cursor: pointer; }
+    .shell { position: relative; max-width: 1240px; margin: auto; padding: 28px 30px 64px; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding-bottom: 58px; }
+    .brand { display: flex; gap: 12px; align-items: center; font-weight: 800; letter-spacing: -.04em; font-size: 19px; }
+    .brand-mark { display: grid; place-items: center; width: 36px; height: 36px; color: white; background: var(--teal); border-radius: 11px; box-shadow: 5px 5px 0 #b9ddd6; }
+    .brand-mark svg { width: 20px; }
+    .nav-right { display: flex; align-items: center; gap: 20px; color: var(--muted); font-size: 12px; }
+    .status { display: flex; align-items: center; gap: 8px; font-family: 'DM Mono', monospace; font-size: 11px; }
+    .status i { width: 7px; height: 7px; border-radius: 50%; background: #41a98c; box-shadow: 0 0 0 4px #d4efe8; }
+    .settings { border: 0; color: var(--teal-dark); background: transparent; font-weight: 700; font-size: 12px; }
+    .logout { border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--muted); background: rgba(255,255,255,.7); font-size: 11px; font-weight: 700; }
+    .logout:hover { border-color: var(--teal); color: var(--teal-dark); }
+    .auth-screen { position: relative; z-index: 1; display: grid; min-height: 100vh; place-items: center; padding: 24px; }
+    .auth-wrap { width: min(960px, 100%); display: grid; grid-template-columns: 1.05fr .95fr; overflow: hidden; border: 1px solid var(--line); border-radius: 24px; background: rgba(255,255,255,.9); box-shadow: var(--shadow); animation: rise .6s ease both; }
+    .auth-visual { display: flex; flex-direction: column; justify-content: space-between; min-height: 590px; padding: 40px; color: white; background: var(--teal-dark); }
+    .auth-visual .brand { color: white; }
+    .auth-visual .brand-mark { color: var(--teal-dark); background: white; box-shadow: 5px 5px 0 #60b8aa; }
+    .auth-copy { max-width: 350px; margin: auto 0; }
+    .auth-copy .eyebrow { color: #a9e0d5; }
+    .auth-copy h1 { margin: 15px 0; color: white; font-size: clamp(34px, 5vw, 56px); }
+    .auth-copy p { color: #b9d8d3; font-size: 13px; line-height: 1.7; }
+    .auth-signal { display: flex; align-items: center; gap: 10px; color: #c8e8e3; font: 10px 'DM Mono', monospace; }
+    .auth-signal i { width: 7px; height: 7px; border-radius: 50%; background: #75d3b2; box-shadow: 0 0 0 4px rgba(117,211,178,.15); }
+    .auth-form-panel { padding: 46px 42px; }
+    .auth-tabs { display: flex; gap: 22px; border-bottom: 1px solid var(--line); margin-bottom: 30px; }
+    .auth-tab { border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 0 0 12px; color: var(--muted); background: transparent; font-size: 13px; font-weight: 800; }
+    .auth-tab.active { border-color: var(--teal); color: var(--teal-dark); }
+    .auth-form h2 { margin: 0 0 8px; font-size: 25px; letter-spacing: -.05em; }
+    .auth-form > p { margin: 0 0 25px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .field { display: block; margin-bottom: 16px; color: var(--ink); font-size: 11px; font-weight: 800; }
+    .field input { display: block; width: 100%; margin-top: 8px; border: 1px solid var(--line); border-radius: 8px; padding: 12px; color: var(--ink); background: #fbfdfc; outline: 0; font-size: 12px; }
+    .field input:focus { border-color: var(--teal); box-shadow: 0 0 0 4px #daf0eb; }
+    .auth-submit { width: 100%; justify-content: center; margin-top: 5px; }
+    .auth-note { margin: 18px 0 0; color: var(--muted); font-size: 10px; line-height: 1.55; text-align: center; }
+    .auth-error { min-height: 17px; margin: 0 0 7px; color: var(--coral); font-size: 11px; }
+    #appShell { display: none; }
+    .intro { max-width: 760px; margin-bottom: 34px; animation: rise .6s ease both; }
+    .eyebrow { color: var(--teal); font: 500 11px 'DM Mono', monospace; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 13px 0 15px; max-width: 700px; font-size: clamp(38px, 6vw, 72px); line-height: .98; letter-spacing: -.065em; }
+    .intro p { margin: 0; max-width: 580px; color: var(--muted); line-height: 1.7; font-size: 15px; }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.07fr) minmax(330px, .93fr); gap: 24px; align-items: start; }
+    .panel { background: rgba(255,255,255,.88); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); }
+    .input-panel { padding: 25px; animation: rise .7s .08s ease both; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .panel-title { font-size: 13px; font-weight: 800; letter-spacing: -.01em; }
+    .counter { color: var(--muted); font: 11px 'DM Mono', monospace; }
+    textarea { width: 100%; min-height: 318px; resize: vertical; border: 1px solid var(--line); border-radius: 13px; padding: 18px; color: var(--ink); background: #fbfdfc; outline: 0; font: 13px/1.7 'DM Mono', monospace; transition: .2s; }
+    textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 4px #daf0eb; }
+    textarea::placeholder { color: #a6b7b5; }
+    .input-foot { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-top: 17px; }
+    .input-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .sample, .file-button { border: 0; color: var(--teal); background: transparent; padding: 8px 0; font-size: 12px; font-weight: 700; }
+    .file-button { color: var(--muted); }
+    .data-note { margin: 15px 0 0; padding: 10px 12px; border-left: 3px solid #9bcfc4; color: #5d7775; background: #f1faf7; font-size: 10px; line-height: 1.55; }
+    .primary { display: inline-flex; align-items: center; gap: 9px; border: 0; border-radius: 10px; padding: 13px 18px; color: white; background: var(--teal); font-size: 12px; font-weight: 800; box-shadow: 0 7px 16px rgba(8,127,117,.22); transition: .2s; }
+    .primary:hover { background: var(--teal-dark); transform: translateY(-1px); }
+    .primary svg { width: 15px; }
+    .results { min-height: 410px; padding: 25px; animation: rise .7s .16s ease both; }
+    .empty { min-height: 360px; display: grid; place-items: center; text-align: center; color: var(--muted); }
+    .empty-icon { margin: auto auto 18px; display: grid; place-items: center; width: 62px; height: 62px; border: 1px dashed #a9c9c4; border-radius: 50%; color: var(--teal); background: #eef8f5; }
+    .empty-icon svg { width: 27px; }
+    .empty strong { display: block; color: var(--ink); font-size: 14px; margin-bottom: 7px; }
+    .empty p { max-width: 220px; margin: 0 auto auto; font-size: 12px; line-height: 1.6; }
+    #resultContent { display: none; }
+    .verdict-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+    .label { color: var(--muted); font: 10px 'DM Mono', monospace; letter-spacing: .12em; text-transform: uppercase; }
+    .verdict { margin: 7px 0 0; font-size: 26px; letter-spacing: -.05em; }
+    .score-ring { --score: 0deg; width: 89px; height: 89px; flex: none; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--coral) var(--score), #e8efed 0); position: relative; }
+    .score-ring::after { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: white; }
+    .score-value { position: relative; z-index: 1; text-align: center; font-size: 20px; font-weight: 800; line-height: 1; }
+    .score-value small { display: block; margin-top: 4px; color: var(--muted); font: 9px 'DM Mono', monospace; }
+    .action { display: inline-block; margin-top: 7px; border-radius: 5px; padding: 5px 8px; color: #9f3528; background: #fff0ed; font-size: 10px; font-weight: 800; }
+    .rationale { margin: 25px 0 22px; border-top: 1px solid var(--line); padding-top: 20px; color: #40515a; font-size: 13px; line-height: 1.75; }
+    .flags-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .flag-count { color: var(--coral); font: 11px 'DM Mono', monospace; }
+    .flags { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .flag { display: flex; gap: 10px; align-items: flex-start; padding: 10px 11px; border: 1px solid #f4d7d2; border-radius: 8px; color: #74423b; background: #fff8f6; font-size: 11px; line-height: 1.45; }
+    .flag::before { content: "!"; display: grid; place-items: center; width: 16px; height: 16px; flex: none; border-radius: 50%; color: white; background: var(--coral); font: 700 10px 'DM Mono', monospace; }
+    .flag.safe { border-color: #c9e9df; color: #397469; background: #f3fbf8; }
+    .flag.safe::before { content: "✓"; background: #56a58f; }
+    .insights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
+    .insight { padding: 15px; border-top: 2px solid var(--teal); background: rgba(255,255,255,.72); }
+    .insight span { display: block; margin-bottom: 7px; color: var(--muted); font: 10px 'DM Mono', monospace; text-transform: uppercase; }
+    .insight b { font-size: 13px; }
+    .footer { display: flex; justify-content: space-between; margin-top: 30px; color: var(--muted); font: 10px 'DM Mono', monospace; }
+    .modal { position: fixed; inset: 0; z-index: 5; display: none; place-items: center; padding: 20px; background: rgba(20,33,43,.35); backdrop-filter: blur(5px); }
+    .modal.open { display: grid; }
+    .modal-box { width: min(430px, 100%); padding: 25px; border-radius: 16px; background: white; box-shadow: 0 30px 80px rgba(20,33,43,.25); }
+    .modal-box h2 { margin: 0 0 7px; font-size: 20px; letter-spacing: -.04em; }
+    .modal-box p { margin: 0 0 18px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .modal-box input { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 11px; outline: 0; font: 12px 'DM Mono', monospace; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+    .secondary { border: 1px solid var(--line); border-radius: 8px; padding: 10px 13px; color: var(--muted); background: white; font-size: 11px; font-weight: 700; }
+    .toast { position: fixed; right: 25px; bottom: 25px; z-index: 8; max-width: 330px; display: none; padding: 13px 16px; border: 1px solid #f2c9c2; border-radius: 9px; color: #713c34; background: #fff6f3; box-shadow: var(--shadow); font-size: 12px; }
+    .toast.show { display: block; animation: rise .25s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 800px) { .shell { padding: 20px 16px 45px; } nav { padding-bottom: 40px; } .nav-right .status { display: none; } .workspace { grid-template-columns: 1fr; } .results { min-height: 0; } }
+    @media (max-width: 480px) { h1 { font-size: 41px; } .input-panel, .results { padding: 18px; } .input-foot { align-items: flex-end; flex-direction: column; } .primary { width: 100%; justify-content: center; } .insights { grid-template-columns: 1fr; } .footer { gap: 10px; flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <section id="authScreen" class="auth-screen" aria-labelledby="authTitle">
+    <div class="auth-wrap">
+      <div class="auth-visual">
+        <div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 20 6v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg></span>Bytex Fraud Detect <span>AI</span></div>
+        <div class="auth-copy"><div class="eyebrow">Secure analysis workspace</div><h1>See the signal. Stop the threat.</h1><p>Enter your workspace to inspect suspicious messages with explainable phishing intelligence.</p></div>
+        <div class="auth-signal"><i></i> PRIVATE LOCAL SESSION / ANALYSIS READY</div>
+      </div>
+      <div class="auth-form-panel">
+        <div class="auth-tabs"><button class="auth-tab active" id="loginTab" type="button">Log in</button><button class="auth-tab" id="signupTab" type="button">Create account</button></div>
+        <form id="authForm" class="auth-form">
+          <h2 id="authTitle">Welcome back</h2><p id="authSubtitle">Log in to continue to your threat intelligence workspace.</p>
+          <label class="field">Email address<input id="authEmail" type="email" autocomplete="email" placeholder="you@company.com" required /></label>
+          <label class="field">Password<input id="authPassword" type="password" autocomplete="current-password" placeholder="Enter your password" minlength="6" required /></label>
+          <p id="authError" class="auth-error" role="alert"></p>
+          <button class="primary auth-submit" type="submit"><span id="authSubmitText">Log in</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <p class="auth-note">Prototype authentication: account details are stored only in this browser. Do not use a real password.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+  <main id="appShell" class="shell">
+    <nav><div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 20 6v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg></span>Bytex Fraud Detect <span style="color:var(--teal)">AI</span></div><div class="nav-right"><span class="status"><i></i> ANALYSIS ENGINE READY</span><button class="settings" id="settingsBtn">API settings</button><button class="logout" id="logoutBtn">Log out</button></div></nav>
+    <section class="intro"><div class="eyebrow">Email threat intelligence / 01</div><h1>Know what’s hiding in your inbox.</h1><p>Paste an email below and get an explainable risk assessment in seconds. Local signal analysis works offline; Gemini adds natural-language context when connected.</p></section>
+    <section class="workspace">
+      <div class="panel input-panel"><div class="panel-head"><span class="panel-title">Email evidence</span><span id="counter" class="counter">0 characters</span></div><textarea id="emailInput" aria-label="Email content" placeholder="From: security@your-bank.com&#10;Subject: Urgent: verify your account&#10;&#10;Paste the full message, including headers, body and links..." spellcheck="false"></textarea><input id="emailFile" type="file" accept=".eml,.txt,text/plain,message/rfc822" hidden /><div class="input-foot"><div class="input-actions"><button class="sample" id="sampleBtn">Load phishing sample →</button><button class="sample" id="benignBtn">Load benign sample</button><button class="file-button" id="fileBtn">Open .eml / .txt</button></div><button class="primary" id="analyzeBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg><span>Analyze email</span></button></div><p class="data-note">Data handling: files are read locally in your browser. No mailbox is connected. If Gemini is configured, the email text is sent to Google only when you select Analyze.</p></div>
+      <div class="panel results"><div id="emptyState" class="empty"><div><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v14H4z"/><path d="m4 7 8 6 8-6"/></svg></div><strong>Waiting for evidence</strong><p>Your verdict, risk signals and recommended next step will appear here.</p></div></div><div id="resultContent"><div class="verdict-row"><div><div class="label">Verdict</div><h2 id="verdictText" class="verdict">Phishing</h2><div id="actionBadge" class="action">Report &amp; quarantine</div></div><div id="scoreRing" class="score-ring"><div class="score-value"><span id="scoreText">0</span><small>/ 100</small></div></div></div><p id="rationaleText" class="rationale"></p><div class="flags-head"><span class="label">Detected red flags</span><span id="flagCount" class="flag-count">0 signals</span></div><ul id="redFlagsList" class="flags"></ul><div class="insights"><div class="insight"><span>Sender</span><b id="senderInsight">Unknown</b></div><div class="insight"><span>Links</span><b id="linkInsight">None found</b></div><div class="insight"><span>Tone</span><b id="toneInsight">Neutral</b></div></div></div></div>
+    </section>
+    <div class="footer"><span>PHISHGUARD / EXPLAINABLE SECURITY</span><span>Heuristics + Gemini intelligence</span></div>
+  </main>
+  <div id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><div class="modal-box"><h2 id="settingsTitle">Connect Gemini AI</h2><p>Your key stays in this browser's local storage and is only sent to Google's Generative Language API. Local analysis remains available without a key.</p><input id="apiKeyInput" type="password" placeholder="Paste your Google AI Studio API key" autocomplete="off" /><div class="modal-actions"><button id="closeModal" class="secondary">Cancel</button><button id="saveKey" class="primary">Save key</button></div></div></div>
+  <div id="toast" class="toast" role="alert"></div>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let authMode = "login";
+    function showApp() { $("authScreen").style.display = "none"; $("appShell").style.display = "block"; }
+    function showAuth() { $("authScreen").style.display = "grid"; $("appShell").style.display = "none"; }
+    function setAuthMode(mode) {
+      authMode = mode;
+      const signup = mode === "signup";
+      $("loginTab").classList.toggle("active", !signup); $("signupTab").classList.toggle("active", signup);
+      $("authTitle").textContent = signup ? "Create your workspace" : "Welcome back";
+      $("authSubtitle").textContent = signup ? "Create a local prototype account to start analyzing emails." : "Log in to continue to your threat intelligence workspace.";
+      $("authSubmitText").textContent = signup ? "Create account" : "Log in";
+      $("authPassword").setAttribute("autocomplete", signup ? "new-password" : "current-password"); $("authError").textContent = "";
+    }
+    $("loginTab").addEventListener("click", () => setAuthMode("login"));
+    $("signupTab").addEventListener("click", () => setAuthMode("signup"));
+    $("authForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const email = $("authEmail").value.trim().toLowerCase(), password = $("authPassword").value;
+      const account = JSON.parse(localStorage.getItem("bytex_demo_account") || "null");
+      if (authMode === "signup") {
+        if (password.length < 6) return $("authError").textContent = "Use at least 6 characters for the prototype password.";
+        if (account) return $("authError").textContent = "An account already exists in this browser. Log in instead.";
+        localStorage.setItem("bytex_demo_account", JSON.stringify({ email, password })); localStorage.setItem("bytex_demo_session", email); showApp();
+      } else if (!account || account.email !== email || account.password !== password) {
+        $("authError").textContent = account ? "Email or password is incorrect." : "Create an account in this browser first.";
+      } else { localStorage.setItem("bytex_demo_session", email); showApp(); }
+    });
+    $("logoutBtn").addEventListener("click", () => { localStorage.removeItem("bytex_demo_session"); $("authForm").reset(); setAuthMode("login"); showAuth(); });
+    if (localStorage.getItem("bytex_demo_session")) showApp();
+    const sample = `From: account-security@micr0soft-support.com\nTo: jordan@example.com\nSubject: URGENT: Your mailbox will be deleted today\nDate: Tue, 08 Sep 2026 09:14:22 +0000\n\nDear customer,\n\nWe detected unusual sign-in activity. Your mailbox will be permanently suspended in 24 hours unless you verify your password immediately.\n\nVerify your account now: http://microsoft-security-check.com/verify\n\nFailure to act will result in data loss. Thank you,\nMicrosoft Account Team`;
+    const benignSample = `From: library@example.org\nTo: jordan@example.com\nSubject: Your reserved book is ready\nDate: Tue, 08 Sep 2026 09:14:22 +0000\n\nHello Jordan,\n\nYour reserved book is ready for pickup during normal opening hours. Please bring your library card to the front desk.\n\nThank you,\nCity Library Team`;
+    const suspiciousWords = /urgent|immediately|act now|within \d+ hours?|suspended|verify|confirm|password|expired|limited|click|failure|deleted|refund|winner|gift card|invoice/i;
+    const freeMail = /@(gmail|yahoo|outlook|hotmail|protonmail)\./i;
+    const urlPattern = /https?:\/\/[^\s<>"]+/gi;
+    function setEmailContent(content, analyze = false) { $("emailInput").value = content; $("emailInput").dispatchEvent(new Event("input")); if (analyze) analyzeEmail(); }
+    $("emailInput").addEventListener("input", () => { $("counter").textContent = `${$("emailInput").value.length.toLocaleString()} characters`; });
+    $("sampleBtn").addEventListener("click", () => setEmailContent(sample, true));
+    $("benignBtn").addEventListener("click", () => setEmailContent(benignSample, true));
+    $("fileBtn").addEventListener("click", () => $("emailFile").click());
+    $("emailFile").addEventListener("change", async (event) => { const file = event.target.files?.[0]; if (!file) return; if (file.size > 2 * 1024 * 1024) { showToast("Choose an email file smaller than 2 MB."); event.target.value = ""; return; } try { setEmailContent(await file.text()); showToast(`${file.name} loaded locally. Review it before analysis.`, false); } catch { showToast("The selected file could not be read locally."); } event.target.value = ""; });
+    $("settingsBtn").addEventListener("click", () => { $("apiKeyInput").value = localStorage.getItem("phishguard_gemini_key") || ""; $("settingsModal").classList.add("open"); $("apiKeyInput").focus(); });
+    $("closeModal").addEventListener("click", () => $("settingsModal").classList.remove("open"));
+    $("saveKey").addEventListener("click", () => { localStorage.setItem("phishguard_gemini_key", $("apiKeyInput").value.trim()); $("settingsModal").classList.remove("open"); showToast("Gemini connection saved for this browser.", false); });
+    $("settingsModal").addEventListener("click", (event) => { if (event.target === $("settingsModal")) $("settingsModal").classList.remove("open"); });
+    $("analyzeBtn").addEventListener("click", analyzeEmail);
+
+    function inspectLocally(email) {
+      const urls = email.match(urlPattern) || [], flags = [], headers = parseHeaders(email);
+      if (suspiciousWords.test(email)) flags.push("Urgency or pressure language asks you to act before you can verify the request.");
+      const from = headers.from || "";
+      if (headers.replyTo && from && headers.replyTo.toLowerCase() !== from.toLowerCase()) flags.push("Reply-To points to a different address than From, which can indicate sender impersonation.");
+      if (from && /[0-9]/.test(from.split("@")[1] || "")) flags.push(`Sender domain “${from.split("@")[1].trim()}” contains unusual numbers or lookalike spelling.`);
+      if (from && freeMail.test(from) && /(invoice|security|support|admin|bank)/i.test(email)) flags.push("The message uses a consumer mailbox for an organizational or security request.");
+      urls.forEach((url) => { try { const host = new URL(url).hostname; if (url.startsWith("http:") || /[-_]/.test(host)) flags.push(`Link points to “${host}”, which is unencrypted or uses a suspicious domain pattern.`); } catch { flags.push("A link in the message could not be safely parsed."); } });
+      if (/\b(password|password reset|login|sign in|verify)\b/i.test(email) && urls.length) flags.push("The email combines a credential request with a clickable link.");
+      if (/dear (customer|user|sir|madam)/i.test(email)) flags.push("Generic greeting is inconsistent with a targeted account notification.");
+      const score = Math.min(98, Math.max(4, flags.length * 17 + (urls.length ? 12 : 0) + (suspiciousWords.test(email) ? 10 : 0)));
+      const verdict = score >= 65 ? "Phishing" : score >= 35 ? "Suspicious" : "Likely legitimate";
+      return { risk_score: score, verdict, recommended_action: score >= 65 ? "Report & quarantine" : score >= 35 ? "Verify independently" : "Safe to open", red_flags: flags, plain_language_rationale: flags.length ? `This message shows ${flags.length} signal${flags.length === 1 ? "" : "s"} that commonly appear in phishing campaigns. Treat the request cautiously and verify it through an official app or a known phone number, not through the links in the email.` : "No strong phishing signals were found in the text provided. Still confirm unexpected requests through a trusted channel before sharing sensitive information.", urls, from, tone: suspiciousWords.test(email) ? "Pressured" : "Neutral" };
+    }
+
+    function parseHeaders(email) {
+      const headerBlock = email.split(/\r?\n\r?\n/)[0], read = (name) => (headerBlock.match(new RegExp(`^${name}:\\s*(.+)$`, "im")) || [])[1]?.trim() || "";
+      return { from: read("From"), replyTo: read("Reply-To"), subject: read("Subject") };
+    }
+
+    async function analyzeWithGemini(email, localResult, key) {
+      const prompt = `You are an email security analyst. Analyze this email and return ONLY valid JSON with keys risk_score (0-100), verdict (Phishing, Suspicious, or Likely legitimate), recommended_action, red_flags (array of concise strings), plain_language_rationale, tone, and sender_assessment. Use the local signals as hints, but inspect the original evidence.\nLocal signals: ${JSON.stringify(localResult)}\nEmail:\n${email}`;
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(key)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: .2 } }) });
+      if (!response.ok) throw new Error("Gemini request failed");
+      const data = await response.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error("Gemini returned no analysis");
+      return { ...localResult, ...JSON.parse(text) };
+    }
+
+    async function analyzeEmail() {
+      const email = $("emailInput").value.trim(); if (!email) return showToast("Paste an email before starting analysis.");
+      const button = $("analyzeBtn"); button.disabled = true; button.querySelector("span").textContent = "Inspecting evidence...";
+      let result = inspectLocally(email), usedGemini = false;
+      const key = localStorage.getItem("phishguard_gemini_key");
+      if (key) { try { result = await analyzeWithGemini(email, result, key); usedGemini = true; } catch { showToast("Gemini was unavailable, so the local analysis is shown instead."); } }
+      renderResults(result); button.disabled = false; button.querySelector("span").textContent = usedGemini ? "Analyze again" : "Analyze email";
+    }
+
+    function renderResults(result) {
+      $("emptyState").style.display = "none"; $("resultContent").style.display = "block";
+      const score = Math.round(Math.max(0, Math.min(100, Number(result.risk_score) || 0))), flags = Array.isArray(result.red_flags) ? result.red_flags : [];
+      $("scoreText").textContent = score; $("scoreRing").style.setProperty("--score", `${score * 3.6}deg`); $("verdictText").textContent = result.verdict || "Needs review"; $("actionBadge").textContent = result.recommended_action || "Verify independently"; $("rationaleText").textContent = result.plain_language_rationale || "No rationale returned."; $("flagCount").textContent = `${flags.length} signal${flags.length === 1 ? "" : "s"}`;
+      $("senderInsight").textContent = result.sender_assessment || (result.from ? result.from.trim().slice(0, 25) : "Not detected"); $("linkInsight").textContent = result.urls?.length ? `${result.urls.length} found` : "None found"; $("toneInsight").textContent = result.tone || "Neutral";
+      $("redFlagsList").innerHTML = flags.length ? flags.map((flag) => `<li class="flag">${escapeHtml(flag)}</li>`).join("") : `<li class="flag safe">No major phishing indicators detected in the provided content.</li>`;
+      $("resultsCard");
+    }
+    function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
+    function showToast(message, autoHide = true) { const toast = $("toast"); toast.textContent = message; toast.classList.add("show"); if (autoHide) setTimeout(() => toast.classList.remove("show"), 4500); }
+  </script>
+</body>
+</html>

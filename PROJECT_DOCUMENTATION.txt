@@ -1,0 +1,568 @@
+BYTEX FRAUD DETECT AI
+PROJECT DOCUMENTATION
+=====================
+
+Version: 1.0 prototype
+Project type: Browser-based AI phishing email detection and analysis tool
+Primary file: index.html
+
+The application now opens with a browser-local Login/Create account entry screen. The analyzer is shown only after a local session is created, and the analyzer header provides a Log out button.
+
+
+1. PROJECT OVERVIEW
+===================
+
+Bytex Fraud Detect AI is an interactive web application that analyzes pasted email content for common phishing indicators. It combines two analysis layers:
+
+1. Local heuristic analysis
+   - Runs directly in the browser.
+   - Works without an internet connection or Gemini API key.
+   - Detects common suspicious patterns such as urgency, credential requests, suspicious domains, lookalike sender addresses, and generic greetings.
+
+2. Google Gemini AI analysis
+   - Optional natural-language analysis using the Gemini API.
+   - Produces a richer rationale, verdict, risk score, red flags, tone assessment, and sender assessment.
+   - Runs when a Gemini API key has been configured in the application.
+   - If the Gemini request fails, the application automatically displays the local analysis instead.
+
+The application is intended as a security-awareness and analysis prototype. It should not be treated as a replacement for an enterprise email security gateway, antivirus engine, SIEM, or professional incident-response process.
+
+
+2. TECHNOLOGY STACK
+===================
+
+Frontend:
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- Responsive CSS Grid and media queries
+- Browser Local Storage
+- Fetch API
+- Browser-local prototype authentication session
+
+Fonts:
+- Manrope for the main interface
+- DM Mono for technical labels and email evidence
+- Fonts are loaded from Google Fonts when internet access is available.
+
+AI service:
+- Google Gemini Generative Language API
+- Model currently configured in the source code: gemini-2.0-flash
+- API protocol: HTTPS REST request using fetch()
+
+No framework or build process is currently required. The prototype is a single self-contained HTML page.
+
+
+3. AI MODEL INFORMATION
+=======================
+
+Configured model:
+- Model name: gemini-2.0-flash
+- Provider: Google AI Studio / Google Generative Language API
+- API method: generateContent
+- Endpoint pattern:
+  https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=YOUR_API_KEY
+
+Why this model is used:
+- Fast response time for interactive browser analysis.
+- Suitable for classification and concise natural-language explanations.
+- Supports structured JSON output through responseMimeType.
+- Appropriate for prototype-level email analysis where users expect results within seconds.
+
+The application sends Gemini a prompt that asks the model to return only JSON with these fields:
+
+{
+  "risk_score": number,
+  "verdict": "Phishing" | "Suspicious" | "Likely legitimate",
+  "recommended_action": string,
+  "red_flags": [string],
+  "plain_language_rationale": string,
+  "tone": string,
+  "sender_assessment": string
+}
+
+The local heuristic result is also included in the prompt as a hint. Gemini is instructed to inspect the original email rather than blindly accepting the local score.
+
+Important:
+- Gemini output is not guaranteed to be factually correct.
+- The result should be treated as decision support, not absolute proof.
+- The application clamps the displayed risk score to the range 0-100.
+- JSON parsing errors or API failures trigger the local fallback result.
+
+
+4. API KEY CONFIGURATION
+========================
+
+Current browser setup:
+
+1. Open the website.
+2. Click the "API settings" button in the upper-right area.
+3. Paste a Google AI Studio Gemini API key into the password field.
+4. Click "Save key".
+5. The key is stored in browser Local Storage under:
+   phishguard_gemini_key
+6. Click "Analyze email" or load the sample email.
+7. If a key exists, the application attempts a Gemini analysis first.
+8. If Gemini is unavailable, the local heuristic analysis is shown.
+
+The key is sent in the URL query string of the HTTPS API request:
+
+https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=API_KEY
+
+The application does not hard-code the key in index.html. This is safer than committing a key to source control, but it is NOT sufficient for a production application.
+
+
+5. CRITICAL API SECURITY WARNING
+================================
+
+This prototype calls Gemini directly from the browser. Any API key saved in browser Local Storage can potentially be inspected by the user or exposed through browser tooling, malicious extensions, screenshots, or a compromised browser.
+
+For production deployment:
+
+- Do not expose a permanent Gemini API key in frontend JavaScript.
+- Do not commit API keys to GitHub or any source-control repository.
+- Do not place API keys in HTML, CSS, or public JavaScript bundles.
+- Create a backend service or serverless function.
+- Store the Gemini key in a server environment variable or secret manager.
+- Send the email from the browser to your backend over HTTPS.
+- Have the backend call Gemini.
+- Return only the required analysis result to the browser.
+- Add authentication, rate limiting, request-size limits, logging controls, and abuse protection.
+- Redact or avoid storing sensitive email content in logs.
+- Rotate the key if it has ever been exposed.
+
+Recommended production architecture:
+
+Browser UI -> HTTPS backend endpoint -> Gemini API
+
+Example backend environment variable:
+
+GEMINI_API_KEY=your_secret_key_here
+
+The frontend should call an endpoint such as:
+
+POST /api/analyze-email
+
+The backend should read GEMINI_API_KEY and make the request to Google. The browser should never receive the secret key.
+
+
+6. LOCAL HEURISTIC ANALYSIS
+============================
+
+The local analyzer is implemented in the inspectLocally() function in index.html.
+
+Current signal categories:
+
+A. Urgency and pressure language
+Examples include:
+- urgent
+- immediately
+- act now
+- within a number of hours
+- suspended
+- deleted
+- failure to act
+- limited
+- expired
+
+B. Sender domain anomalies
+- Numbers in a sender domain can indicate lookalike spelling.
+- Example: micr0soft-support.com
+- The implementation extracts the value after a From: header.
+
+C. Consumer mailbox used for an organizational request
+The analyzer checks for consumer email providers such as Gmail, Yahoo, Outlook, Hotmail, and ProtonMail combined with words such as security, support, admin, invoice, or bank.
+
+D. Link and domain inspection
+- Detects HTTP and HTTPS URLs.
+- Parses URLs with the browser URL class.
+- Flags unencrypted HTTP links.
+- Flags domains containing hyphens or underscores as suspicious patterns.
+- Reports the number of links in the result panel.
+
+E. Credential request combined with a link
+Flags emails that mention passwords, login, sign in, verification, or password reset together with a clickable URL.
+
+F. Generic greeting
+Flags greetings such as:
+- Dear customer
+- Dear user
+- Dear sir
+- Dear madam
+
+Score calculation:
+- Each detected red flag contributes to the score.
+- A message with links receives an additional score contribution.
+- Suspicious language receives an additional score contribution.
+- The score is limited to a maximum of 98 and a minimum of 4.
+
+Current local verdict thresholds:
+- 65 or higher: Phishing
+- 35 to 64: Suspicious
+- Below 35: Likely legitimate
+
+These rules are intentionally simple and explainable. They are not a statistical classifier and should be improved with tested datasets before being used for security-critical decisions.
+
+
+7. USER WORKFLOW
+================
+
+1. The user opens index.html in a modern browser.
+2. The user creates a local prototype account or logs in with the account already stored in that browser.
+3. The user pastes email headers, body text, and links, or loads a local .eml/.txt file into the Email evidence field.
+4. The character count updates automatically.
+5. The user selects Analyze email.
+6. The local analyzer parses relevant headers and runs immediately.
+7. If a Gemini key is stored, Gemini is queried for an enriched result.
+8. The result panel displays:
+   - Verdict
+   - Circular 0-100 risk score
+   - Recommended action
+   - Plain-language rationale
+   - Detected red flags
+   - Sender assessment
+   - Link count
+   - Tone assessment
+9. The user can load built-in synthetic phishing or benign samples to test the workflow.
+10. The user can select Log out to return to the entry screen.
+
+Authentication note:
+- This is browser-local demo authentication, not a real user-management system.
+- The demo account and session are stored in Local Storage.
+- Account passwords must be treated as test-only values.
+- Production authentication requires a backend, password hashing, secure cookies or tokens, rate limiting, account recovery, and server-side authorization.
+
+Recommended actions shown by the prototype:
+- Report & quarantine
+- Verify independently
+- Safe to open
+
+The recommended action is advisory. Users should verify unexpected requests through a trusted channel, such as the official app or a known telephone number.
+
+
+8. USER INTERFACE FEATURES
+==========================
+
+- Responsive desktop and mobile layout.
+- Two-panel analyst workspace.
+- Animated page entrance and button hover states.
+- Teal and coral security-focused visual language.
+- API settings modal dialog.
+- Toast notifications for empty input and Gemini fallback errors.
+- Empty result state before analysis.
+- Accessible labels for the email textbox and settings dialog.
+- HTML escaping for red-flag text before it is inserted into the result list.
+
+
+9. FILE STRUCTURE
+==================
+
+Current prototype:
+
+ai_email_detectin/
+|
+|-- index.html
+|-- PROJECT_DOCUMENTATION.txt
+
+index.html contains:
+- Page structure
+- Styling
+- Sample email
+- Local detection logic
+- Gemini API integration
+- Result rendering
+- API key settings modal
+
+PROJECT_DOCUMENTATION.txt contains this project guide.
+
+
+10. HOW TO RUN THE PROJECT
+===========================
+
+Option A: Open directly
+
+1. Navigate to the project folder.
+2. Double-click index.html.
+3. The application opens in the default browser.
+4. Use the built-in phishing sample to verify local analysis.
+
+Option B: Run with a local web server
+
+A local server is recommended for development and for avoiding browser restrictions associated with file:// URLs.
+
+Using Python:
+
+python -m http.server 8000
+
+Then open:
+
+http://localhost:8000
+
+Using Visual Studio Code:
+- Install a local server extension such as Live Server if desired.
+- Open index.html.
+- Start the local server from the editor.
+
+No npm install command is required for the current single-file prototype.
+
+
+11. TESTING CHECKLIST
+=====================
+
+Manual test 1: Built-in phishing email
+- Click Load a phishing sample.
+- Expected result: a high risk score and Phishing verdict.
+- Expected signals: urgency, lookalike sender, suspicious link, credential request, and generic greeting.
+
+Manual test 2: Empty input
+- Leave the text area empty.
+- Click Analyze email.
+- Expected result: a notification asks the user to paste an email.
+
+Manual test 3: Legitimate-style email
+Use an email such as:
+
+From: library@example.org
+Subject: Your reserved book is ready
+
+Hello Jordan,
+Your requested book is ready for pickup during normal opening hours.
+
+Expected result:
+- Lower score than the phishing sample.
+- Few or no red flags.
+- A cautious, non-phishing recommendation.
+
+Manual test 4: Gemini unavailable
+- Do not configure a key, or use a temporarily unavailable service.
+- Analyze the sample.
+- Expected result: local analysis still completes.
+
+Manual test 5: Settings dialog
+- Open API settings.
+- Enter a key and save it.
+- Reopen API settings.
+- Expected result: the saved value is present in the password field.
+
+Manual test 6: Mobile layout
+- Test at a narrow viewport.
+- Expected result: panels stack vertically and the Analyze email button remains usable.
+
+Manual test 7: Local EML/TXT loading
+- Select Open .eml / .txt and choose a synthetic or anonymized file smaller than 2 MB.
+- Expected result: the file contents appear in the editor without a network request.
+- Confirm that From, Reply-To, Subject, and URLs are available to local analysis.
+
+Manual test 8: Data privacy notice
+- Review the data-handling notice below the editor.
+- Expected result: it explains that local files are read in-browser and that Gemini receives content only after the user selects Analyze with a key configured.
+
+
+12. TROUBLESHOOTING
+====================
+
+Problem: Gemini analysis does not run.
+Possible causes:
+- Missing or invalid API key.
+- API quota exhausted.
+- Gemini model or endpoint unavailable.
+- Browser network connection blocked.
+- CORS or local file restrictions.
+
+Resolution:
+- Check API settings and save a valid Google AI Studio key.
+- Check Google AI Studio quota and API access.
+- Run the page through a local HTTP server instead of file://.
+- Confirm that the browser can reach generativelanguage.googleapis.com.
+- Use the local fallback while diagnosing the API.
+
+Problem: The result says local analysis is being shown.
+Cause:
+- The Gemini request failed or returned invalid JSON.
+Resolution:
+- Check the browser developer console for the specific request failure.
+- Verify the key and model name.
+- Confirm the API response contains candidates[0].content.parts[0].text.
+
+Problem: Links are not detected.
+Cause:
+- The URL does not begin with http:// or https://.
+- The link is embedded in an HTML format not represented as plain text.
+Resolution:
+- Paste the full URL into the email evidence field.
+- Improve the parser to support HTML email input if required.
+
+Problem: A legitimate email receives a suspicious result.
+Cause:
+- Heuristics are intentionally conservative and may produce false positives.
+Resolution:
+- Use the result as a warning, not proof.
+- Verify the sender and request through an official channel.
+- Tune the detection rules or add a labeled evaluation dataset.
+
+
+13. LIMITATIONS
+===============
+
+- The prototype does not perform DNS, WHOIS, SPF, DKIM, or DMARC verification.
+- It does not inspect real attachment files.
+- It does not safely open or crawl links.
+- It does not query threat-intelligence databases.
+- It does not validate whether a sender actually owns a domain.
+- It does not provide enterprise identity, audit, or multi-user controls.
+- Browser Local Storage is not a secure secrets vault.
+- The heuristic score is not calibrated against a formal benchmark.
+- Gemini responses may be incomplete, incorrect, or affected by prompt injection within an email.
+- Sensitive email content is sent to Gemini when the API key is configured. Review organizational privacy requirements before using real confidential emails.
+
+
+14. DATA CONSIDERATIONS AND DATASET PLAN
+=======================================
+
+The project should use public, synthetic, or anonymized data for development and evaluation. Real user mailboxes must not be connected to the prototype or included in the test set.
+
+Recommended public sources:
+
+- PhishTank feed for publicly reported phishing URLs and related indicators. Confirm the feed's current access terms and preserve the source date for each snapshot.
+- Nazario phishing corpus for phishing email examples. Confirm the dataset license, provenance, and whether redistribution is permitted before packaging samples with the project.
+- Enron email dataset for legitimate email examples. Use only an approved, properly licensed copy and preserve the dataset's attribution requirements.
+- Synthetic phishing emails authored specifically for testing edge cases, such as lookalike domains, urgent payment requests, password resets, fake delivery notices, and malicious attachments.
+- Synthetic benign emails covering normal newsletters, receipts, appointment confirmations, internal notices, and personal correspondence.
+
+Recommended sample formats:
+
+- Raw text for simple unit tests.
+- EML or MIME files for realistic header and body parsing tests.
+- Separate metadata files containing the label, source, collection date, scenario, and preprocessing status.
+
+The current UI accepts pasted raw text and local .eml or .txt files up to 2 MB. Files are read in the browser and are not uploaded automatically. The parser extracts From, Reply-To, and Subject headers locally before heuristic inspection. Selecting Analyze may send the loaded text to Gemini only when a Gemini key is configured.
+
+Locally extracted features:
+
+- Sender address and sender domain.
+- Reply-To address, when present.
+- Subject line.
+- Plain-text body.
+- HTML body, when present.
+- URLs, schemes, hostnames, paths, and visible link text.
+- Authentication headers such as SPF, DKIM, and DMARC when available.
+- Attachment names and MIME types, without opening untrusted attachments.
+- Language, urgency markers, credential requests, payment requests, and impersonation terms.
+
+Privacy and anonymization rules:
+
+- Never use a real user's mailbox, live mailbox export, or private corporate email without documented authorization and a formal privacy review.
+- Prefer synthetic or already anonymized messages for demonstrations and tests.
+- Remove or replace recipient names, email addresses, phone numbers, physical addresses, account numbers, order numbers, message IDs, and internal hostnames.
+- Replace personal URLs and tracking parameters with deterministic placeholders where they are not relevant to the detection task.
+- Do not send confidential or personally identifiable email content to Gemini during development.
+- Do not store complete email bodies in application logs.
+- Keep raw research data separate from the public web prototype.
+- Record the anonymization method and review a sample of transformed messages for accidental data leakage.
+
+Data quality and relevance:
+
+- Keep phishing and benign classes clearly labeled and document ambiguous messages separately.
+- Preserve the original source label and add a project label only after review.
+- Remove duplicate messages and near-duplicates to prevent inflated evaluation scores.
+- Check that the dataset represents the project context: sender spoofing, urgency, credential theft, malicious links, payment fraud, and legitimate business mail.
+- Track class balance and report it with every evaluation.
+- Split data by campaign, sender, domain, or time period where possible so near-identical messages do not appear in both training and test sets.
+- Keep a held-out test set that is never used to tune heuristics or prompts.
+- Document false positives and false negatives rather than deleting inconvenient results.
+
+Suggested evaluation record:
+
+{
+   "sample_id": "synthetic-0001",
+   "label": "phishing",
+   "source": "synthetic",
+   "format": "raw_text",
+   "collection_date": "YYYY-MM-DD",
+   "anonymized": true,
+   "features_available": ["sender", "subject", "body", "urls"],
+   "notes": "Lookalike sender and urgent credential request"
+}
+
+Licensing and provenance:
+
+- Review the license and usage terms for every downloaded dataset before redistribution or commercial use.
+- Record the dataset URL, version or snapshot date, license, citation, and preprocessing steps.
+- Do not assume that a publicly downloadable dataset is unrestricted for all uses.
+- Keep a data inventory so each evaluation result can be traced back to its source.
+
+
+15. RECOMMENDED PRODUCTION IMPROVEMENTS
+=======================================
+
+Security and privacy:
+- Move Gemini API calls to a backend proxy.
+- Add authentication and authorization.
+- Use environment variables and a secret manager.
+- Add rate limiting and request validation.
+- Redact personal information before external AI processing.
+- Add a configurable data-retention policy.
+- Log metadata rather than complete email bodies.
+
+Detection quality:
+- Add SPF, DKIM, and DMARC header checks.
+- Parse MIME and HTML emails properly.
+- Add safe domain reputation lookups.
+- Detect Unicode homograph domains.
+- Analyze attachment names and file types.
+- Add a labeled phishing and legitimate email dataset.
+- Measure precision, recall, F1 score, false-positive rate, and false-negative rate.
+- Calibrate score thresholds using evaluation results.
+
+Product capabilities:
+- Drag-and-drop .eml upload.
+- Browser extension or mail-client integration.
+- Exportable analysis reports.
+- History of analyzed messages with privacy controls.
+- Team dashboards and incident reporting.
+- Explainable evidence highlighting inside the email body.
+- Separate administrator and analyst roles.
+
+Reliability:
+- Add automated unit tests for the local analyzer.
+- Add integration tests using a mocked Gemini API.
+- Add end-to-end browser tests for the main workflow.
+- Add structured error states and retry behavior.
+- Add monitoring for API latency and failure rate.
+
+
+16. EVALUATION METRICS
+======================
+
+Recommended success metrics:
+
+Classification:
+- Accuracy on a balanced test set.
+- Precision for phishing verdicts.
+- Recall for known phishing emails.
+- F1 score.
+- False-positive rate on legitimate emails.
+- False-negative rate on phishing emails.
+
+User experience:
+- Time from paste to result.
+- Percentage of users who understand the recommended action.
+- User rating of rationale clarity.
+- Percentage of analyses completed through local fallback.
+- Gemini request success rate.
+
+Security:
+- Percentage of high-risk emails correctly escalated.
+- Number of unsafe links opened after analysis.
+- API key exposure incidents.
+- Sensitive content retention and deletion compliance.
+
+
+17. PROJECT HANDOFF SUMMARY
+===========================
+
+The current deliverable is a functional single-page prototype. It can run without a backend and can analyze email locally. When configured, it uses Google Gemini gemini-2.0-flash to improve the natural-language explanation and classification.
+
+Before production use, the highest-priority change is moving the Gemini request behind a secure backend so the API key is not stored or exposed in the browser. The next priority is evaluating the classifier against a labeled dataset and adding standards-based email authentication and domain reputation checks.
+
+END OF DOCUMENTATION
