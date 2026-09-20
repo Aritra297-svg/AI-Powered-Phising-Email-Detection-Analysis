@@ -26,8 +26,8 @@
     .settings { border: 0; color: var(--teal-dark); background: transparent; font-weight: 700; font-size: 12px; }
     .logout { border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--muted); background: rgba(255,255,255,.7); font-size: 11px; font-weight: 700; }
     .logout:hover { border-color: var(--teal); color: var(--teal-dark); }
-    .auth-screen { position: relative; z-index: 1; display: grid; min-height: 100vh; place-items: center; padding: 24px; }
-    .auth-wrap { width: min(960px, 100%); display: grid; grid-template-columns: 1.05fr .95fr; overflow: hidden; border: 1px solid var(--line); border-radius: 24px; background: rgba(255,255,255,.9); box-shadow: var(--shadow); animation: rise .6s ease both; }
+    .auth-screen { position: relative; z-index: 1; display: grid; width: 100%; min-height: 100vh; min-height: 100dvh; place-items: center; padding: 24px; overflow-x: hidden; }
+    .auth-wrap { width: min(960px, 100%); min-width: 0; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); overflow: hidden; border: 1px solid var(--line); border-radius: 24px; background: rgba(255,255,255,.9); box-shadow: var(--shadow); animation: rise .6s ease both; }
     .auth-visual { display: flex; flex-direction: column; justify-content: space-between; min-height: 590px; padding: 40px; color: white; background: var(--teal-dark); }
     .auth-visual .brand { color: white; }
     .auth-visual .brand-mark { color: var(--teal-dark); background: white; box-shadow: 5px 5px 0 #60b8aa; }
@@ -110,18 +110,20 @@
     .toast { position: fixed; right: 25px; bottom: 25px; z-index: 8; max-width: 330px; display: none; padding: 13px 16px; border: 1px solid #f2c9c2; border-radius: 9px; color: #713c34; background: #fff6f3; box-shadow: var(--shadow); font-size: 12px; }
     .toast.show { display: block; animation: rise .25s ease both; }
     @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 800px) {
+    /* The auth card switches earlier than the workspace: two narrow login columns
+       make fields unusable and are the source of horizontal scrolling on phones. */
+    @media (max-width: 900px) {
       .shell { padding: 20px 16px 45px; }
       nav { padding-bottom: 40px; }
       .nav-right .status { display: none; }
       .workspace { grid-template-columns: 1fr; }
       .results { min-height: 0; }
       .auth-screen { display: block; min-height: 100dvh; padding: 0; }
-      .auth-wrap { width: 100%; min-height: 100dvh; grid-template-columns: 1fr; border: 0; border-radius: 0; }
+      .auth-wrap { width: 100%; max-width: 100%; min-height: 100dvh; grid-template-columns: minmax(0, 1fr); border: 0; border-radius: 0; }
       .auth-visual { min-height: 290px; padding: 28px 24px; }
       .auth-copy { margin: 42px 0 12px; }
       .auth-copy h1 { max-width: 500px; font-size: clamp(32px, 9vw, 46px); }
-      .auth-form-panel { padding: 34px 24px 42px; }
+      .auth-form-panel { min-width: 0; padding: 34px 24px 42px; }
     }
     @media (max-width: 480px) {
       .shell { padding: 16px 12px 32px; }
@@ -155,6 +157,8 @@
       .auth-signal { font-size: 9px; }
       .auth-form-panel { padding: 28px 20px 36px; }
       .auth-tabs { gap: 18px; margin-bottom: 24px; }
+      .auth-tab { font-size: 12px; }
+      .auth-form h2 { font-size: 24px; }
       .modal { align-items: end; padding: 12px; }
       .modal-box { padding: 20px; border-radius: 16px; }
       .modal-actions { flex-direction: column-reverse; }
